@@ -8,7 +8,7 @@ module Sufia
 
     def update(attributes)
       self.uploaded_file_ids = attributes.delete(:uploaded_files)
-      validate_files && next_actor.update(attributes) && attach_files
+      validate_files && set_mediation_state && next_actor.update(attributes) && attach_files
     end
 
     protected
@@ -46,6 +46,18 @@ module Sufia
       def mark_inactive
         return true unless Flipflop.enable_mediated_deposit?
         curation_concern.state = inactive_uri
+      end
+
+      def set_mediation_state
+        return true unless Flipflop.enable_mediated_deposit?
+        # set the state based on the form param
+        # curation_concern.state = active_uri
+        # curation_concern.state = inactive_uri
+        true
+      end
+
+      def active_uri
+        ::RDF::URI('http://fedora.info/definitions/1/0/access/ObjState#active')
       end
 
       def inactive_uri
